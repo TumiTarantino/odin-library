@@ -1,0 +1,37 @@
+:root{
+    --color-primary: #1894db;
+    --color-white: #f5f5f5;
+    --color-black: #292929;
+
+}
+
+body{
+    margin: 0;
+    background-color: var(--color-primary);
+}
+
+h1{
+    color: var(--color-white);
+    font-size: 4rem;
+}
+
+.nav{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
+
+button{
+    border-radius: 16px;
+    border: none;
+    padding: 8px;
+    background-color: darkolivegreen;
+    color: var(--color-white);
+}
+.book{
+    background-color: var(--color-white);
+    color: var(--color-black);
+    min-width: 100px;
+    min-height: 100px;
+}
