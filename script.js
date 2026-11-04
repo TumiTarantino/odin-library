@@ -1,65 +1,56 @@
 const addBookButton = document.querySelector("#book-btn");
 const nav = document.querySelector(".nav");
 const form = document.querySelector("#theForm");
+const open_btn = document.querySelector("[data-open-modal]");
+const modal_form = document.querySelector("[data-modal]");
 
-// Testting stuff 2
-
-// How to get the book attributes?
 form.onsubmit = (e) => {
     e.preventDefault();
 
-    // 2. Pass the submitted form (event.target) to FormData
+    // Pass the submitted form (event.target) to FormData
     const formData = new FormData(e.target);
   
-    // 3. Convert to a standard JavaScript object
+    // Convert to a standard JavaScript object
     const data = Object.fromEntries(formData);
     console.log(data);
 
-    addBookToLibrary(data.title, data.author, data.pages, data.read);
+    //data.read === returns false if data.read is anything but "true"
+    addBookToLibrary(data.title, data.author, Number(data.pages), data.read === "true"); 
     console.log(myLibrary);
-
-    
+    modal_form.close();
+    form.reset();
     renderLibrary();
 } 
-// End of Testing Stuff 2
 
-addBookButton.addEventListener("click", () => {
-    console.log("button works");
-    // this button will probably just be a way to open the form, the actual submission will happen in the form.onsubmit
+open_btn.addEventListener("click", () => {
+    modal_form.showModal();
 })
-
 
 const myLibrary = [];
 
-const book = document.querySelector(".book");
 const books = document.querySelector(".books");
 
 function Book(title, author, pages, read){
     if(!new.target){
         throw Error("You must use the 'new' operator to call the constructor");
     }
-    let readStatus = "not read yet"
+
     this.id = crypto.randomUUID();
     this.title = title;
     this.author = author;
     this.pages = pages;
     this.read = read;
-    
-
-    if(this.read == true){
-        readStatus = "has been read";
-    }
-
-    this.info = function() {
-        return `${this.title} by ${this.author}, ${this.pages} pages, ${readStatus}.`;
-    };
 }
 
 Book.prototype.toggleRead = function() {
-    //so the read status should be a global book thingie and can be checked by the uuid
+    // Inverts the boolean value of read value
     this.read = !this.read;
-
 }
+
+Book.prototype.info = function() {
+        //Not really need here
+        return `${this.title} by ${this.author}, ${this.pages} pages, ${this.read}.`;
+    };
 
 function addBookToLibrary(title, author, pages, read) {
   // take params, create a book then store it in the array
@@ -139,8 +130,9 @@ renderLibrary();
 
 //END OF TESTING STUFF
 /*
-When the button is pressed, a form should be shown,(fields to be decided)
+When the button is pressed, a form should be shown,(fields to be decided)DONE
 The books will be made with Javscript, research as you should DONE
 
-Future Me: I added html stuff for now, however, add these defaults via JS, then find a way to get user input
+Future Me: I added html stuff for now, however, add these defaults via JS, then find a way to get user inputDONE?
+The form needs to be validated, kinda, the no returns truthy as string is not empty
 */
