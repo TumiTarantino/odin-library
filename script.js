@@ -15,40 +15,11 @@ form.onsubmit = (e) => {
     const data = Object.fromEntries(formData);
     console.log(data);
 
-    addBookToLibrary(data.title, data.author, data.pages, data.pages);
+    addBookToLibrary(data.title, data.author, data.pages, data.read);
     console.log(myLibrary);
 
-    //Okay now we need to update the visible library, using appendbooks does not work, as it re-adds all the whole library books
-
-    //A bit ugly and should be better(since books are created in two places now), but hey, it works
-    let newer_book = document.createElement("div"); //Contains each book
-
-        //Elements for 'newer_book'
-        let title = document.createElement("h2"); 
-        let author = document.createElement("h3");
-        let pages = document.createElement("h3");
-        let read = document.createElement("h3");
-        let delete_btn = document.createElement("button");
-
-        delete_btn.addEventListener("click", () => {
-            //Need to delete card
-            newer_book.remove();
-        })
-
-        title.textContent = `Title: ${data.title}`;
-        author.textContent = `Author: ${data.author}`;
-        pages.textContent = `Pages: ${data.pages}`;
-        read.textContent = `Read: ${data.read}`;
-        delete_btn.textContent = "Delete book";
-
-        //Adds the 'book' class to each newer book
-        newer_book.classList.add("book");
-
-        //Adds all the elements to the newer book
-        newer_book.append(title,author,pages,read,delete_btn);
-        
-        //Adds each newer book into the books container
-        books.append(newer_book);
+    
+    renderLibrary();
 } 
 // End of Testing Stuff 2
 
@@ -73,6 +44,7 @@ function Book(title, author, pages, read){
     this.author = author;
     this.pages = pages;
     this.read = read;
+    
 
     if(this.read == true){
         readStatus = "has been read";
@@ -81,6 +53,12 @@ function Book(title, author, pages, read){
     this.info = function() {
         return `${this.title} by ${this.author}, ${this.pages} pages, ${readStatus}.`;
     };
+}
+
+Book.prototype.toggleRead = function() {
+    //so the read status should be a global book thingie and can be checked by the uuid
+    this.read = !this.read;
+
 }
 
 function addBookToLibrary(title, author, pages, read) {
@@ -100,9 +78,12 @@ addBookToLibrary("Tee","Zy", 178, false);
 console.log("Books in the library: ");
 console.log(myLibrary);
 
-function appendBooks(){
-    for(let i = 0; i < myLibrary.length; i++){
-        let newer_book = document.createElement("div"); //Contains each book
+// So i think this append books function should be split into a renderbook function and maybe a another function that actually creates the cards
+// its only called once soo there should be something there
+
+function createBookCard(book){
+        //Needs a book, where is book from?
+        let newer_book = document.createElement("div"); //Contains a book
 
         //Elements for 'newer_book'
         let title = document.createElement("h2"); 
@@ -110,56 +91,52 @@ function appendBooks(){
         let pages = document.createElement("h3");
         let read = document.createElement("h3");
         let delete_btn = document.createElement("button");
+        let read_btn = document.createElement("button")
 
-        title.textContent = `Title: ${myLibrary[i].title}`;
-        author.textContent = `Author: ${myLibrary[i].author}`;
-        pages.textContent = `Pages: ${myLibrary[i].pages}`;
-        read.textContent = `Read: ${myLibrary[i].read}`;
+        newer_book.dataset.id = book.id; // gives each book as 'data-id' attribute equal to its actual id
+        title.textContent = `Title: ${book.title}`;
+        author.textContent = `Author: ${book.author}`;
+        pages.textContent = `Pages: ${book.pages}`;
+        read.textContent = `Read: ${book.read ? "Has been read" : "Not read"}`;
         delete_btn.textContent = "Delete book";
-
-        //Adds the 'book' class to each newer book
-        newer_book.classList.add("book");
-
-        //Adds all the elements to the newer book
-        newer_book.append(title,author,pages,read,delete_btn);
-        
-        //Adds each newer book into the books container
-        books.append(newer_book);
-    }
-}
-
-function appendBook(){
-        let newer_book = document.createElement("div"); //Contains each book
-
-        //Elements for 'newer_book'
-        let title = document.createElement("h2"); 
-        let author = document.createElement("h3");
-        let pages = document.createElement("h3");
-        let read = document.createElement("h3");
-        let delete_btn = document.createElement("button");
-
-        title.textContent = `Title: ${myLibrary[i].title}`;
-        author.textContent = `Author: ${myLibrary[i].author}`;
-        pages.textContent = `Pages: ${myLibrary[i].pages}`;
-        read.textContent = `Read: ${myLibrary[i].read}`;
-        delete_btn.textContent = "Delete book";
+        read_btn.textContent = "Read book?";
 
         delete_btn.addEventListener("click", () => {
-            //Need to delete card
-            newer_book.remove();
+            //it should remove the card and then renderlibrary can update the page
+            const index = myLibrary.findIndex(book => book.id === newer_book.dataset.id);
+            if (index !== -1){
+                myLibrary.splice(index,1);
+            }
+            renderLibrary();
+        })
+
+        read_btn.addEventListener("click", () => {
+            book.toggleRead();
+            renderLibrary();
         })
 
         //Adds the 'book' class to each newer book
         newer_book.classList.add("book");
 
         //Adds all the elements to the newer book
-        newer_book.append(title,author,pages,read,delete_btn);
+        newer_book.append(title,author,pages,read,read_btn,delete_btn);
         
-        //Adds each newer book into the books container
-        books.append(newer_book);
+        return newer_book;
 }
 
-appendBooks();
+function renderLibrary(){
+    //this function should just update the dom in regards to the contents of myLibrary
+
+    //Dom should be cleared before each iteration
+    books.replaceChildren();
+    for(let i = 0; i < myLibrary.length; i++){
+        //Adds each newer book into the books container
+        books.append(createBookCard(myLibrary[i]));
+        
+    }
+}
+renderLibrary();
+
 //END OF TESTING STUFF
 /*
 When the button is pressed, a form should be shown,(fields to be decided)
